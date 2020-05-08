@@ -20,6 +20,17 @@ object SqlOperations extends App with Context{
 
   dfTagsJ.createOrReplaceTempView("agents_estate")
 
+  //permalink,company,numEmps,category,city,state,fundedDate,raisedAmt,raisedCurrency,round
+
+  val dfTagsK = sparkSession
+    .read
+    .option("header", "true")
+    .option("inferSchema", "true")
+    .csv("src/main/resources/capital_funding.csv")
+    .toDF("permalink","company","numEmps","category","city","state","fundedDate","raisedAmt","raisedCurrency","round")
+
+  dfTagsK.createOrReplaceTempView("capital_funding")
+
   // By accessing DataFrame (row view) from DataSet
 
   // 1. show the created table structure
@@ -60,6 +71,22 @@ object SqlOperations extends App with Context{
   sparkSession.sql("select * from agents_estate " +
                              "where stores > 20 and employees < 300" +
                              " order by city").show()
+  // 8. Distinct
+  sparkSession.sql("select distinct(company), raisedAmt from capital_funding " +
+                            "order by raisedAmt desc").show()
+
+  //9. Offset (ms sql) is not supported in spqrk sql , use zipWithIndex function on rdd for pagination
+
+  //10. In
+  sparkSession.sql("select * from real_estate where city" +
+                   " in (select city from agents_estate) order by price desc").show(10)
+
+  //11. Like
+  sparkSession.sql("select * from real_estate where " +
+                    " city like 'S%' order by price desc").show(10)
+
+  sparkSession.sql("select * from real_estate where " +
+                     " street like '^[%CT]'").show(10)
 
 
 
