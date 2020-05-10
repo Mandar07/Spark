@@ -87,10 +87,4 @@ object SqlOperations extends App with Context{
 
   sparkSession.sql("select * from real_estate where " +
                      " street like '^[%CT]'").show(10)
-
-
-
-
-
-
 }
